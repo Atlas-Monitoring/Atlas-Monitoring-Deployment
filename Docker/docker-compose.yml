@@ -1,0 +1,68 @@
+services:
+  api-atlas-monitoring:
+    container_name: api-atlas-monitoring
+    hostname: api-atlas-monitoring
+    image: ghcr.io/atlas-monitoring/atlas-monitoring-api:latest
+    restart: always
+    environment:
+      - DB_SERVER=bdd-atlas-monitoring
+      - DB_USER=root
+      - DB_PASSWORD=toor
+      - DB_DATABASE=atlas
+      - ASPNETCORE_HTTP_PORTS=80
+      - ENABLE_SWAGGER=true
+    depends_on:
+      - bdd-atlas-monitoring
+    expose:
+      - 80
+    ports:
+      - 8081:80
+    networks:
+      - net-bdd-atlas-monitoring
+      - net-api-atlas-monitoring
+
+  bdd-atlas-monitoring:
+    container_name: bdd-atlas-monitoring
+    hostname: bdd-atlas-monitoring
+    image: mariadb
+    restart: always
+    environment:
+      - ASPNETCORE_HTTP_PORTS=80
+      - MARIADB_ROOT_PASSWORD=toor
+      - TZ=Europe/Paris
+    volumes:
+      - volbdd-atlas-monitoring:/var/lib/mysql
+    networks:
+      - net-bdd-atlas-monitoring
+
+  web-atlas-monitoring:
+    container_name: web-atlas-monitoring
+    hostname: web-atlas-monitoring
+    image: ghcr.io/atlas-monitoring/atlas-monitoring-web:latest
+    restart: always
+    environment:
+      - ASPNETCORE_HTTP_PORTS=80
+      - URLApi=http://api-atlas-monitoring/api
+    expose:
+      - 80
+    ports:
+      - 8080:80
+    networks:
+      - net-api-atlas-monitoring
+
+# Volumes
+volumes:
+  volbdd-atlas-monitoring:
+    name: "volbdd-atlas-monitoring"
+    driver: local
+    driver_opts: 
+      o: bind
+      type: none
+      device: ~/volbdd-atlas-monitoring
+
+# Networks
+networks:
+  net-bdd-atlas-monitoring:
+    name: net-bdd-atlas-monitoring
+  net-api-atlas-monitoring:
+    name: net-api-atlas-monitoring
