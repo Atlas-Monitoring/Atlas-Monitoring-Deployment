@@ -11,6 +11,7 @@ services:
       - DB_DATABASE=atlas
       - ASPNETCORE_HTTP_PORTS=80
       - ENABLE_SWAGGER=true
+      - TZ=Europe/Paris
     depends_on:
       - bdd-atlas-monitoring
     expose:
@@ -43,12 +44,15 @@ services:
     environment:
       - ASPNETCORE_HTTP_PORTS=80
       - URLApi=http://api-atlas-monitoring/api
+      - TZ=Europe/Paris
     expose:
       - 80
     ports:
       - 8080:80
     networks:
       - net-api-atlas-monitoring
+    cap_add:
+      - cap_net_raw
 
 # Volumes
 volumes:
